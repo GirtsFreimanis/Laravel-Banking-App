@@ -104,18 +104,6 @@
     </div>
     <script>
 
-        /*document.getElementById('search_account').addEventListener('change', function () {
-            document.getElementById("balanceShow").style.display = "flex";
-
-            let selectedOption = this.options[this.selectedIndex];
-
-            let balance = selectedOption.getAttribute('data-balance');
-            let currency = selectedOption.getAttribute('data-currency');
-
-            document.getElementById('account_currency').textContent = currency;
-            document.getElementById('account_balance').textContent = balance;
-        });*/
-
         document.getElementById('transaction-history-form').addEventListener('submit', (event) => {
             const account = document.getElementById('search_account');
             const accountError = document.getElementById('accountError');

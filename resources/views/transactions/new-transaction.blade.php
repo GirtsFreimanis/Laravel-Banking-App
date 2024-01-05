@@ -16,7 +16,6 @@
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 bg-white border-b border-gray-200">
-
                         <div>
                             You currently do not have any accounts.
                             Click <a href="{{ route('account.create') }}">here</a>
@@ -33,9 +32,9 @@
                     <form action="{{ route('transactions.store') }}" method="post" id="new-transaction-form">
                         @if(!count($accounts))
                             <fieldset disabled="disabled">
-
                                 @endif
                                 @csrf
+
                                 <div class="row">
 
                                     <div>
@@ -72,7 +71,7 @@
 
                                 <div class="mb-3">
                                     <label for="account_to" class="form-label">Recipient Account Number:</label>
-                                    <input name="account_to" type="text" id="account_to" class="form-control"
+                                    <input name="account_to" type="number" id="account_to" class="form-control"
                                            style="width:250px;" value="{{old('account_to')}}">
                                     <span class="text-danger" id="to_accountError">
                             @if($errors->has('account_to'))
@@ -85,7 +84,7 @@
                                     <label for="amount" class="form-label">Amount:</label>
                                     <div class="">
                                         <div style="width:250px;" class="input-group">
-                                            <input name="amount" type="text" id="amount" class="form-control"
+                                            <input name="amount" type="number" id="amount" class="form-control"
                                                    value="{{old('amount')}}">
                                             <span class="input-group-text" id="amount_currency"></span>
                                         </div>
@@ -161,13 +160,16 @@
 
                 if (!amount.value.trim()) {
                     amountError.textContent = 'Please enter an amount';
-                    isValid = false
+                    isValid = false;
                 } else if (isNaN(amount.value.trim())) {
                     amountError.textContent = 'Amount needs to be a number';
-                    isValid = false
+                    isValid = false;
                 } else if (parseInt(amount.value.trim()) > parseInt(balance)) {
                     amountError.textContent = 'Amount exceeds balance';
-                    isValid = false
+                    isValid = false;
+                } else if (!/^\d+(\.\d{1,2})?$/.test(amount.value.trim())) {
+                    amountError.textContent = 'More than two numbers after decimal point';
+                    isValid = false;
                 } else {
                     amountError.textContent = '';
                 }

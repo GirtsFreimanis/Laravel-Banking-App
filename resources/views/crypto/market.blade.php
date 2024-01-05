@@ -43,7 +43,7 @@
                                     <thead>
                                     <tr>
                                         <th>Symbol</th>
-                                        <th>Price</th>
+                                        <th>Price (EUR)</th>
                                         <th></th>
                                     </tr>
                                     </thead>
@@ -53,9 +53,9 @@
                                             <td>{{ $crypto->symbol }}</td>
                                             <td>{{ number_format($crypto->price,8,".","") }}</td>
                                             <td class="text-center">
-                                                <a href="{{route("crypto.trade", ['symbol' => $crypto->symbol])}}">
+                                                <a href="{{route("crypto.buy", ['symbol' => $crypto->symbol])}}">
                                                     <button type="button" class="btn btn-primary">
-                                                        Trade
+                                                        Buy
                                                     </button>
                                                 </a>
                                             </td>
@@ -63,9 +63,7 @@
                                     @endforeach
                                     </tbody>
                                 </table>
-                                <div class="d-flex">
-                                    {!! $cryptoCurrencies->links() !!}
-                                </div>
+                                {{ $cryptoCurrencies->onEachSide(2)->links()->without('paginator') }}
                             </div>
                         @endif
 

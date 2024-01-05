@@ -3,7 +3,7 @@
         <x-slot name="trigger">
             <button
                 class="nav-dropdown flex items-center text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 focus:outline-none focus:text-gray-700 focus:border-gray-300 transition duration-150 ease-in-out">
-                Investments
+                Crypto
 
                 <div class="ml-1">
                     <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
@@ -18,11 +18,15 @@
         <x-slot name="content">
             <!-- Authentication -->
             <x-dropdown-link :href="route('crypto.market')" class="text-decoration-none">
-                {{ __('Cryptocurrency market') }}
+                {{ __('Market') }}
             </x-dropdown-link>
 
-            <x-dropdown-link :href="route('transaction.history')" class="text-decoration-none">
-                {{ __('Investment Overview') }}
+            <x-dropdown-link :href="route('crypto.portfolio')" class="text-decoration-none">
+                {{ __('My portfolio') }}
+            </x-dropdown-link>
+
+            <x-dropdown-link :href="route('crypto.sell')" class="text-decoration-none">
+                {{ __('Sell Crypto') }}
             </x-dropdown-link>
         </x-slot>
     </x-dropdown>

@@ -27,12 +27,12 @@ class TransactionController extends Controller
 
         $request->validate([
             'account_from' => 'required',
-            'account_to' => 'required|digits:13|not_in:' . $request->input('account_from'),
-            'amount' => 'required|numeric|min:1|max:' . $fromAccount->balance,
+            'account_to' => 'required|digits:13|not_in:' . trim($request->input('account_from')),
+            'amount' => 'required|numeric|min:1|max:' . trim($fromAccount->balance) / 100,
         ]);
 
         $toAccount = Account::query()
-            ->where('IBAN', $request->input('account_to'))
+            ->where('IBAN', trim($request->input('account_to')))
             ->first();
 
         if (!$toAccount) {
@@ -40,7 +40,7 @@ class TransactionController extends Controller
         }
 
         $fromAccount->update([
-            'balance' => $fromAccount->balance - $request->input('amount') * 100,
+            'balance' => $fromAccount->balance - trim($request->input('amount')) * 100,
         ]);
 
         $fromAccountCurrencyRate = Currency::query()
@@ -53,7 +53,7 @@ class TransactionController extends Controller
             ->first()
             ->rate;
 
-        $fromExchangeRate = $request->input('amount') / ($fromAccountCurrencyRate / 100);
+        $fromExchangeRate = trim($request->input('amount')) / ($fromAccountCurrencyRate / 100);
 
         $exchangedAmount = floor($fromExchangeRate * ($toAccountCurrencyRate));
 
@@ -62,16 +62,15 @@ class TransactionController extends Controller
         ]);
 
         $transaction = (new Transaction)->fill([
-            'amount' => $request->input('amount') * 100,
+            'amount' => trim($request->input('amount')) * 100,
             'exchanged_amount' => $exchangedAmount,
-            'account_from' => $request->input('account_from'),
-            'account_to' => $request->input('account_to'),
+            'account_from' => trim($request->input('account_from')),
+            'account_to' => trim($request->input('account_to')),
             'currency_from' => $fromAccount->currency,
             'currency_to' => $toAccount->currency,
             'account_from_balance' => $fromAccount->balance,
             'account_to_balance' => $toAccount->balance,
         ]);
-
         $transaction->save();
 
         return redirect()->route('dashboard')->with('success', 'Transaction successful.');
