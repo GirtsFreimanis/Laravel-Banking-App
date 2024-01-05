@@ -23,13 +23,18 @@ class AccountController extends Controller
             'currency' => 'required',
             'type' => 'required',
         ]);
-        $iban = (int)str_pad(mt_rand(0, 9999999999999), 13, '0', STR_PAD_LEFT);
+        $iban = '';
+
+        for ($i = 0; $i < 13; $i++) {
+            $iban .= rand(1, 9);
+        }
+        $iban = (int)$iban;
 
         $account = new Account([
             'user_id' => $request->user()->id,
             'IBAN' => $iban,
             'currency' => $request->get('currency'),
-            'balance' => 1000,
+            'balance' => 10000,
             'type' => $request->get('type'),
         ]);
 

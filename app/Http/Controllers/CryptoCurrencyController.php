@@ -189,6 +189,7 @@ class CryptoCurrencyController extends Controller
                 'investments_history.bought_at',
                 'investments_history.id'
             )
+            ->where('investments_history.status', 'bought')
             ->where('accounts.user_id', $request->user()->id)
             ->where('accounts.IBAN', $request->get('search_account'))
             ->where('investments_history.amount', '>', 0)
