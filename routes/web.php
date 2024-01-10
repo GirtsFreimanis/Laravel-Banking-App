@@ -4,12 +4,12 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CryptoCurrencyController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TransactionHistoryController;
-use App\Models\Account;
+
 
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('1welcome');
 });
 
 Route::get('/dashboard', function () {

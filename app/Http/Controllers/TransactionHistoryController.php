@@ -57,8 +57,7 @@ class TransactionHistoryController extends Controller
         return view('transactions/transaction-history', [
             'accounts' => $accounts,
             'transactions' => $transactions,
-            'search_account' => $request->get('search_account'
-            ),
+            'search_account' => $request->get('search_account'),
         ]);
     }
 
