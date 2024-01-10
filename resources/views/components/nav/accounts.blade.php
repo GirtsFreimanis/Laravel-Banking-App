@@ -21,6 +21,9 @@
             <x-dropdown-link :href="route('account.create')" class="text-decoration-none">
                 {{ __('Open an Account') }}
             </x-dropdown-link>
+            <x-dropdown-link :href="route('account.overview')" class="text-decoration-none">
+                {{ __('Accounts overview') }}
+            </x-dropdown-link>
         </x-slot>
     </x-dropdown>
 </div>

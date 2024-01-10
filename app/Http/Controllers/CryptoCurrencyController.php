@@ -8,7 +8,6 @@ use App\Models\Currency;
 use App\Models\Investment;
 use App\Models\InvestmentHistory;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CryptoCurrencyController extends Controller
 {
@@ -96,7 +95,7 @@ class CryptoCurrencyController extends Controller
             $newInvestment->save();
         } else {
             $investment->update([
-                'amount' => $investment->amount + $amount,
+                'amount' => $investment->amount + (int)$amount,
             ]);
         }
 
@@ -134,18 +133,18 @@ class CryptoCurrencyController extends Controller
 
     public function portfolioSearch(Request $request)
     {
-        $investments = DB::table('investments')
+        $accounts = Account::query()
+            ->where('user_id', $request->user()->id)
+            ->where('type', 'investment')
+            ->get();
+
+        $investments = Investment::query()
             ->join('accounts', 'investments.account_id', '=', 'accounts.id')
             ->join('crypto_currencies', 'investments.crypto_id', '=', 'crypto_currencies.id')
             ->select('crypto_currencies.symbol', 'crypto_currencies.price', 'investments.amount')
             ->where('accounts.user_id', $request->user()->id)
             ->where('accounts.IBAN', $request->get('search_account'))
             ->where('investments.amount', '>', 0)
-            ->get();
-
-        $accounts = Account::query()
-            ->where('user_id', $request->user()->id)
-            ->where('type', 'investment')
             ->get();
 
         return view('crypto.portfolio', [
@@ -168,7 +167,6 @@ class CryptoCurrencyController extends Controller
 
     public function showHoldings(Request $request)
     {
-
         $account = Account::query()
             ->where('IBAN', $request->get('search_account'))
             ->where('user_id', $request->user()->id)
@@ -179,24 +177,25 @@ class CryptoCurrencyController extends Controller
             ->first()
             ->rate;
 
-        $investments = DB::table('investments_history')
+        $investments = InvestmentHistory::query()
             ->join('accounts', 'investments_history.account_id', '=', 'accounts.id')
             ->join('crypto_currencies', 'investments_history.crypto_id', '=', 'crypto_currencies.id')
+            ->where('investments_history.status', 'bought')
+            ->where('accounts.user_id', $request->user()->id)
+            ->where('accounts.IBAN', $request->get('search_account'))
+            ->where('investments_history.amount', '>', 0)
             ->select(
                 'crypto_currencies.symbol',
                 'crypto_currencies.price',
                 'investments_history.amount',
                 'investments_history.bought_at',
-                'investments_history.id'
+                'investments_history.id',
+                'accounts.IBAN',
             )
-            ->where('investments_history.status', 'bought')
-            ->where('accounts.user_id', $request->user()->id)
-            ->where('accounts.IBAN', $request->get('search_account'))
-            ->where('investments_history.amount', '>', 0)
             ->get();
 
+
         foreach ($investments as $investment) {
-            $investment->account = $account->IBAN;
             $investment->price *= $accountCurrencyRate / 100;
             $investment->value = number_format($investment->amount * $investment->price * 100, 2, ".", "");
             $investment->gain = number_format((($investment->price - $investment->bought_at) / $investment->bought_at) * 100, 2, ".", "");
@@ -215,22 +214,16 @@ class CryptoCurrencyController extends Controller
 
     public function sell(Request $request)
     {
-        //dd($request);
-
         $investmentHistory = InvestmentHistory::query()
-            ->where('id', $request->investment['id'])
+            ->where('id', $request->investment)
             ->first();
 
-        $investmentHistory->update([
-            'status' => 'sold'
-        ]);
-
         $account = Account::query()
-            ->where('IBAN', $request->investment['account'])
+            ->where('id', $investmentHistory->account_id)
             ->first();
 
         $crypto = CryptoCurrency::query()
-            ->where('symbol', $request->investment['symbol'])
+            ->where('id', $investmentHistory->crypto_id)
             ->first();
 
         $investment = Investment::query()
@@ -239,11 +232,21 @@ class CryptoCurrencyController extends Controller
             ->first();
 
         $investment->update([
-            'amount' => $investment->amount - $request->investment['amount'],
+            'amount' => $investment->amount - $investmentHistory->amount,
         ]);
+        $currencyRate = Currency::query()
+            ->where('symbol', $account->currency)
+            ->first()
+            ->rate;
+
+        $value = (int)number_format($investmentHistory->amount * $crypto->price * $currencyRate, 2, ".", "") * 100;
 
         $account->update([
-            'balance' => $account->balance + $request->investment['value'] * 100
+            'balance' => $account->balance + $value,
+        ]);
+
+        $investmentHistory->update([
+            'status' => 'sold'
         ]);
         return redirect()->route('dashboard')->with('success', 'Transaction successful.');
     }

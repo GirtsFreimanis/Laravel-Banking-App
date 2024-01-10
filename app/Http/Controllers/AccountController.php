@@ -12,7 +12,7 @@ class AccountController extends Controller
     {
         $currencies = config('currencies');
 
-        return view('open-account', [
+        return view('account.open-account', [
             'currencies' => $currencies,
         ]);
     }
@@ -41,5 +41,16 @@ class AccountController extends Controller
         $account->save();
 
         return redirect()->route('dashboard')->with('success', 'Successfully created account');
+    }
+
+    public function overview(Request $request)
+    {
+        $accounts = Account::query()
+            ->where('user_id', $request->user()->id)
+            ->get();
+
+        return view('account.overview', [
+            'accounts' => $accounts,
+        ]);
     }
 }

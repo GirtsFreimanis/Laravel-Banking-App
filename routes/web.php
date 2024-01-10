@@ -4,6 +4,8 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CryptoCurrencyController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\TransactionHistoryController;
+use App\Models\Account;
+
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -17,6 +19,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('account', AccountController::class);
+    Route::get('/accounts-overview', [AccountController::class, 'overview'])->name('account.overview');
 
     Route::resource('transactions', TransactionController::class);
     Route::get('/new-transaction', [TransactionController::class, 'newTransaction'])->name('new.transaction');
